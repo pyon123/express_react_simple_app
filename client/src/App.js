@@ -1,23 +1,40 @@
-import logo from './logo.svg';
-import './App.css';
+import { useState, useEffect } from "react";
+import { getRequest } from "./utils/request";
+
+import "./App.css";
 
 function App() {
+  const [data, setData] = useState([]);
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const response = await getRequest("/data");
+        setData(
+          (response || []).filter((item) =>
+            item.symbol.toLowerCase().startsWith("a")
+          )
+        );
+      } catch (error) {
+        setData([]);
+      }
+    }
+    fetchData();
+
+    return () => {};
+  }, []);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <ul>
+        {data.map((item, i) => (
+          <li key={i}>
+            <a href={`https://finance.yahoo.com/quote/${item.symbol}`}>
+              {item.name}
+            </a>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
